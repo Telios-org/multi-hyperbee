@@ -335,7 +335,7 @@ class MultiHyperbee extends Hyperbee {
       if (peer.name)
         console.log(`UPDATE: ${peer.name}`)
  // console.log(`UPDATE: ${peerFeed.key.toString('hex')}`)
-      let rs = peer.createHistoryStream({ gte: -1 })
+      let rs = peer.createHistoryStream()
       let newSeqs = []
       let values = []
       rs.on('data', async (data) => {
