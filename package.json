@@ -23,7 +23,7 @@
   "homepage": "https://github.com/tradle/multi-hyperbee#readme",
   "dependencies": {
     "automerge": "^0.14.1",
-    "hyperbee": "1.5.3",
+    "hyperbee": "^1.5.3",
     "hypercore": "^9.6.0",
     "lodash": "^4.17.20",
     "pump": "^3.0.0",
