@@ -355,8 +355,8 @@ class MultiHyperbee extends Hyperbee {
       })
       rs.on('end', async (data) => {
         // Check if peer has write permissions before merging
-        const writeList = await this._get('canWrite');
-        if(!writeList || writeList.value.peers.indexOf(peer.feed.key.toString('hex')) === -1) return;
+        const accessPolicy = await this._get('__access');
+        if(!accessPolicy || !accessPolicy.value.canWrite || accessPolicy.value.canWrite.indexOf(peer.feed.key.toString('hex')) === -1) return;
         
         for (let i=0; i<values.length; i++)
           await this.mergeHandler.merge(values[i])
