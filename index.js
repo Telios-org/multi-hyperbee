@@ -223,6 +223,41 @@ class MultiHyperbee extends Hyperbee {
     }
     return peersHB
   }
+
+  async close() {
+    const promArr = [];
+
+    for(const key in this.sources) {
+      const hyperbee = this.sources[key];
+      if(hyperbee && hyperbee.hasOwnProperty('feed') && hyperbee.feed !== undefined && hyperbee.feed.opened) {
+        promArr.push(new Promise((resolve, reject) => {
+          hyperbee.feed.close((err) => {
+            if(err) return reject(err);
+            resolve();
+          });
+        }))
+      }
+    }
+
+    if(this.diffFeed.opened) {
+      promArr.push(new Promise((resolve, reject) => {
+        this.diffFeed.close((err) => {
+          if(err) return reject(err);
+          resolve();
+        });
+      }));
+    }
+
+    if(this.feed.opened) {
+      promArr.push(new Promise((resolve, reject) => {
+        this.feed.close((err) => {
+          if(err) return reject(err);
+          resolve();
+        });
+      }));
+    }
+  }
+
   async removePeer (key) {
     await this._init
 
