@@ -34,7 +34,6 @@ class MultiHyperbee extends Hyperbee {
     this.sources = {}
     this.deletedSources = {}
     this.name = name || ''
-    this.canWrite = null
     this._init = this.init()
   }
 
@@ -162,10 +161,6 @@ class MultiHyperbee extends Hyperbee {
       return this.diffFeed.replicate(isInitiator, options)
 
     return await this._joinMainStream(isInitiator, stream)
-  }
-
-  addWriters(peerDiffKeys) {
-    this.canWrite = peerDiffKeys;
   }
 
   async _joinMainStream(isInitiator, stream) {
@@ -395,15 +390,6 @@ class MultiHyperbee extends Hyperbee {
         // await this.mergeHandler(this, {...value, _replica: true})
       })
       rs.on('end', async (data) => {
-        // Check if peer has write permissions before merging
-        const accessPolicy = await this._get('__access');
-        
-        if(this.canWrite) {
-          if(this.canWrite && this.canWrite.indexOf(peer.feed.key.toString('hex')) === -1) return;
-        } else {
-          if(!accessPolicy || !accessPolicy.value.canWrite || accessPolicy.value.canWrite.indexOf(peer.feed.key.toString('hex')) === -1) return;
-        }
-        
         for (let i=0; i<values.length; i++)
           await this.mergeHandler.merge(values[i])
       })
