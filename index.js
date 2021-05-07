@@ -84,15 +84,26 @@ class MultiHyperbee extends Hyperbee {
     let counter = parseInt(timestamp.slice(idx + 1))
     return new Clock(new Timestamp(millis, counter, keyString))
   }
-  async get(key) {
+  async get(key, sub) {
     await this._init
+
+    if(sub) {
+      return sub.get(key);
+    }
+    
     return this._get(key)
   }
-  async del(key) {
+  async del(key, sub) {
     await this._init
+
+    if(sub) {
+      return sub.del(key);
+    }
+
     await super.del(key)
   }
-  async put(key, value, noDiff, isNew) {
+  async put(key, value, noDiff, isNew, sub) {
+
     await this._init
     if (key === this.peerListKey) {
       super.put(key, value)
@@ -112,7 +123,13 @@ class MultiHyperbee extends Hyperbee {
     let diff = value._diff
     delete value._diff
 
-    let cur = !isNew  && await this.get(key)
+    let cur;
+
+    if(sub) {
+      cur = !isNew  && await sub.get(key)
+    } else {
+      cur = !isNew  && await this.get(key)
+    }
 
     value._timestamp = timestamp
     let prevTimestamp, prevSeq
@@ -125,7 +142,12 @@ class MultiHyperbee extends Hyperbee {
     if (prevSeq)
       value._prevSeq = prevSeq
 
-    await super.put(key, value)
+    if(sub) {
+      await sub.put(key, value)
+    } else {
+      await super.put(key, value)
+    }
+
     if (diff) {
       diff._timestamp = timestamp
       if (prevTimestamp)
